@@ -1,0 +1,9 @@
+com\example\campaign\model\Campaign.class
+com\example\campaign\model\Communication.class
+com\example\campaign\CampaignApplication.class
+com\example\campaign\Controller\Test.class
+com\example\campaign\model\Channel.class
+com\example\campaign\repository\CampaignRepository.class
+com\example\campaign\service\CampaignService.class
+com\example\campaign\model\CampaignCommunication.class
+com\example\campaign\service\CampaignServiceImpl.class
