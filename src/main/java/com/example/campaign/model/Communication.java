@@ -17,7 +17,7 @@ public class Communication {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false, length = 64)
-    private String id = UUID.randomUUID().toString();
+    private String id;
 
     private String rank;
 
@@ -28,7 +28,39 @@ public class Communication {
 
     private String message;
 
+    private String subject;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campaign_id", nullable = false)
     private Campaign campaign;
+
+    @Override
+    public String toString() {
+        return "Communication{" +
+                "id='" + id + '\'' +
+                ", rank='" + rank + '\'' +
+                ", communicationId='" + communicationId + '\'' +
+                ", channel=" + channel +
+                ", message='" + message + '\'' +
+                ", campaign=" + campaign.getId() +
+                '}';
+    }
+
+
+
+    public boolean validateSMS(){
+        if (channel.equals(Channel.SMS)){
+            return message!= null && !message.isBlank();
+        }
+        else
+            return false;
+    }
+
+    public boolean validateEMAIL(){
+        if (channel.equals(Channel.EMAIL)){
+            return  subject != null && !subject.isBlank() && message != null && !message.isBlank();
+        }
+        else
+            return false;
+    }
 }

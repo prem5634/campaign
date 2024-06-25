@@ -20,7 +20,7 @@ public class Campaign {
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     @Column(name = "id", updatable = false, nullable = false, length = 64)
-    private String id = UUID.randomUUID().toString();
+    private String id ;
 
     @Column
     private String name;
@@ -29,7 +29,7 @@ public class Campaign {
     private String description;
 
     //Taking List than Set as no uniques communicationCampaign is mentioned
-    @OneToMany(mappedBy = "com/example/campaign", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
     private List<Communication> communicationList;
 
     public boolean checkRules(){
@@ -70,4 +70,15 @@ public class Campaign {
         return a&&b&&c;
     }
 
+
+
+    @Override
+    public String toString() {
+        return "Campaign{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", communicationList=" + communicationList +
+                '}';
+    }
 }

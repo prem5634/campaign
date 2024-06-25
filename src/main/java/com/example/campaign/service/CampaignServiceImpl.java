@@ -1,7 +1,10 @@
 package com.example.campaign.service;
 
 import com.example.campaign.model.Campaign;
+import com.example.campaign.model.Channel;
+import com.example.campaign.model.Communication;
 import com.example.campaign.repository.CampaignRepository;
+import com.example.campaign.repository.CommunicationRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,15 +15,18 @@ public class CampaignServiceImpl implements CampaignService {
     @Autowired
     CampaignRepository campaignRepository;
 
+    @Autowired
+    CommunicationRepository communicationRepository;
+
     @Override
     public Campaign create(Campaign request){
         try {
-            boolean validCampaign = checkCampaign(request);
+            boolean validCampaign = validateCampaign(request);
             if (!validCampaign){
                 throw new RuntimeException("Invalid Campaign");
             }
             //TODO need to complete
-            saveCampaign(request);
+            request = saveCampaign(request);
             log.info("saved campaign : {}", request);
 
             return request;
@@ -34,13 +40,13 @@ public class CampaignServiceImpl implements CampaignService {
     @Override
     public Campaign getCampaign(String id){
         try {
-            Campaign campaign = campaignRepository.findById(id).get();
+            Campaign campaign = campaignRepository.getById(id);
             if(campaign==null){
                 log.info("No campaign found");
             }
             return campaign;
         }catch (Exception e){
-            log.error("Saving campaign failed");
+            log.error("get campaign failed");
            throw e;
         }
     }
@@ -50,7 +56,7 @@ public class CampaignServiceImpl implements CampaignService {
         try {
             Campaign campaign = getCampaign(campaignId);
             if(campaign!=null){
-                return campaign.checkRules();
+                return validateCampaign(campaign);
             }else {
                 throw new RuntimeException("No campaign id found with campaignId"+ campaignId);
             }
@@ -61,7 +67,7 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
 
-    private boolean checkCampaign(Campaign campaign){
+    private boolean validateCampaign(Campaign campaign){
         if(campaign==null){
             return false;
         }
@@ -74,12 +80,33 @@ public class CampaignServiceImpl implements CampaignService {
         if(campaign.getCommunicationList()==null || campaign.getCommunicationList().isEmpty()){
             return false;
         }
-        return campaign.checkRules();
+        boolean validCampaign = campaign.checkRules();
+        boolean validComms = validateComms(campaign);
+
+        return validComms && validCampaign;
     }
 
-    //TODO need to implement in memory Database and solve errors
-    private Campaign saveCampaign(Campaign campaign){
+    private boolean validateComms(Campaign campaign){
+        boolean validComms = true;
+        for (Communication communication: campaign.getCommunicationList()){
+            if(communication.getChannel().equals(Channel.SMS)){
+                validComms = communication.validateSMS();
+            }else if(communication.getChannel().equals(Channel.EMAIL)){
+                validComms = communication.validateEMAIL();
+            }
 
+            if (!validComms){
+                break;
+            }
+        }
+        return validComms;
+    }
+
+    private Campaign saveCampaign(Campaign campaign){
+        for (Communication comm: campaign.getCommunicationList()
+             ) {
+            comm.setCampaign(campaign);
+        }
         return campaignRepository.save(campaign);
     }
 }
