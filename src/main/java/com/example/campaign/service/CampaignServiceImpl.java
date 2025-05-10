@@ -38,7 +38,7 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public Campaign getCampaign(String id){
+    public Campaign getCampaign(){
         try {
             Campaign campaign = campaignRepository.getById(id);
             if(campaign==null){
@@ -52,7 +52,7 @@ public class CampaignServiceImpl implements CampaignService {
     }
 
     @Override
-    public boolean evaluateCampaign(String campaignId){
+    public boolean evaluateCampaign(){
         try {
             Campaign campaign = getCampaign(campaignId);
             if(campaign!=null){
